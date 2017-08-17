@@ -19,7 +19,7 @@ import net.dv8tion.jda.core.events.message.MessageReceivedEvent;
  */
 public class CommandBase {
     private static CommandBase instance;
-    private Collection<Method> methods;
+    private final Collection<Method> methods;
     private String prefix = "";
     
     private CommandBase() {
@@ -36,11 +36,9 @@ public class CommandBase {
     public CommandBase registerCommandClass(Class<?> klass) {
             while(klass != Object.class) {
                 final List<Method> allMethods = new ArrayList<>(Arrays.asList(klass.getDeclaredMethods()));
-                for(final Method method : allMethods) {
-                    if(method.isAnnotationPresent(Command.class)) {
-                        this.methods.add(method);
-                    }
-                }
+                allMethods.stream().filter((method) -> (method.isAnnotationPresent(Command.class))).forEachOrdered((method) -> {
+                    this.methods.add(method);
+                });
                 klass = klass.getSuperclass();
             }
         return this;
@@ -79,6 +77,7 @@ public class CommandBase {
             }
         }
     }
+    
     private void help(MessageReceivedEvent event) {
         int fieldCount = 0;
         final int maxCount = 10;
@@ -131,6 +130,10 @@ public class CommandBase {
         }
         
         return paramstring.toString();
+    }
+    
+    public Collection<Method> getCommandMethods() {
+        return this.methods;
     }
     
 }
