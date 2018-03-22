@@ -1,3 +1,25 @@
+sudo: false
 language: java
 jdk:
   - oraclejdk8
+
+services:
+  - docker
+
+cache:
+  directories:
+    - "$HOME/.cache"
+
+branches:
+  only:
+    - master
+    - develop
+
+deploy:
+  provider: scripts
+  script: "cp .travis.settings.xml $HOME/.m2/settings.xml && mvn deploy
+  skip_cleanup: true
+  on:
+    tags: true
+  branches:
+    only: master
